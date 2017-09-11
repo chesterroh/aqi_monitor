@@ -48,6 +48,21 @@ def processPacket(packet):
     print pm10
     print "PM2.5 AQI %d\n" % (calcAQI(pm2_5))
 
+def verify_checksum(packet):
+    checksum = ord(packet[28])<<8 | ord(packet[29])
+    datasum = 0
+    
+    for i in range(28):
+        datasum += ord(packet[i])
+
+    datasum += 0x42
+    datasum += 0x4d
+
+    if checksum == datasum:
+        return True
+    else:
+        return False
+    
     
 while 1:
     x = ser.read()
@@ -55,5 +70,6 @@ while 1:
         x = ser.read()
         if ord(x) == 0x4d:
             x = ser.read(30)
-            processPacket(x)
+            if verify_checksum(x):
+                processPacket(x)
             
