@@ -2,17 +2,53 @@
 
 import time
 import serial
-import aqi
+import sys
+import RPi.GPIO as GPIO
 
-ser = serial.Serial(
-    port = '/dev/ttyAMA0',
-    baudrate = 9600,
-    parity = serial.PARITY_NONE,
-    stopbits = serial.STOPBITS_ONE,
-    bytesize = serial.EIGHTBITS,
-    timeout = 1,
-)
-print(ser.name)
+redPin = 11
+greenPin = 13
+bluePin = 15
+
+def turnonLED(pin):
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(pin,GPIO.OUT)
+    GPIO.output(pin,GPIO.HIGH)
+
+def turnoffLED(pin):
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(pin,GPIO.OUT)
+    GPIO.output(pin,GPIO.LOW)
+
+def allOff():
+    turnoffLED(redPin)
+    turnoffLED(greenPin)
+    turnoffLED(bluePin)
+
+def redOn():
+    turnonLED(redPin)
+
+def greenOn():
+    turnonLED(greenPin)
+
+def blueOn():
+    turnonLED(bluePin)
+
+def yellowOn():
+    turnonLED(redPin)
+    turnonLED(greenPin)
+
+def cyanOn():
+    turnonLED(greenPin)
+    turnonLED(bluePin)
+
+def magentaOn():
+    turnonLED(redPin)
+    turnonLED(bluePin)
+
+def whiteOn():
+    turnonLED(redPin)
+    turnonLED(greenPin)
+    turnonLED(bluePin)
 
 
 def calcAQI(u):
@@ -43,11 +79,23 @@ def processPacket(packet):
     pm2_5 = ord(packet[10])<<8|ord(packet[11])
     pm10 = ord(packet[12])<<8|ord(packet[13])
 
-    print pm01
-    print pm2_5
-    print pm10
-    print "PM2.5 AQI %d\n" % (calcAQI(pm2_5))
+    aqi = calcAQI(pm2_5)
 
+    print "PM2.5 AQI %d\n" % (aqi)
+    
+    allOff()
+    
+    if aqi > 0 and aqi <= 50:
+        greenOn()
+    elif aqi > 50 and aqi <=100:
+        yellowOn()
+    elif aqi > 100 and aqi <= 150:
+        redOn()
+    elif aqi > 150 and aqi <= 200:
+        magentaOn()
+    elif aqi > 200:
+        blueOn()
+        
 def verify_checksum(packet):
     checksum = ord(packet[28])<<8 | ord(packet[29])
     datasum = 0
@@ -62,7 +110,15 @@ def verify_checksum(packet):
         return True
     else:
         return False
-    
+
+ser = serial.Serial(
+    port = '/dev/ttyAMA0',
+    baudrate = 9600,
+    parity = serial.PARITY_NONE,
+    stopbits = serial.STOPBITS_ONE,
+    bytesize = serial.EIGHTBITS,
+    timeout = 1,
+)
     
 while 1:
     x = ser.read()
