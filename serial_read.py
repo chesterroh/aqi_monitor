@@ -74,11 +74,12 @@ def calcAQI(u):
 
 def processPacket(packet):
 
-    print ord(packet[11])
     pm01 = ord(packet[8])<<8|ord(packet[9])
     pm2_5 = ord(packet[10])<<8|ord(packet[11])
     pm10 = ord(packet[12])<<8|ord(packet[13])
+    voc = ord(packet[26])<<8|ord(packet[28])
 
+    print "PM1.0 %d /  PM2.5 %d /  PM10 %d / VOC %d mg/M" % ( pm01, pm2_5, pm10, voc )
     aqi = calcAQI(pm2_5)
 
     print "PM2.5 AQI %d\n" % (aqi)
@@ -111,14 +112,17 @@ def verify_checksum(packet):
     else:
         return False
 
-ser = serial.Serial(
-    port = '/dev/ttyAMA0',
-    baudrate = 9600,
-    parity = serial.PARITY_NONE,
-    stopbits = serial.STOPBITS_ONE,
-    bytesize = serial.EIGHTBITS,
-    timeout = 1,
-)
+try:
+    ser = serial.Serial(
+        port = '/dev/ttyAMA0',
+        baudrate = 9600,
+        parity = serial.PARITY_NONE,
+        stopbits = serial.STOPBITS_ONE,
+        bytesize = serial.EIGHTBITS,
+        timeout = 1,
+    )
+except serial.SerialException:
+    print "Port open failed"
     
 while 1:
     x = ser.read()
