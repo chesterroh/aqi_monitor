@@ -170,7 +170,6 @@ def main():
     try:
         while 1:
             x = ser.read()
-            print(type(x))
             if bytes_to_int(x) == 0x42:
                 x = ser.read()
             if bytes_to_int(x) == 0x4d:
