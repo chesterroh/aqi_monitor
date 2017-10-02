@@ -153,7 +153,7 @@ def main():
     run_event = threading.Event()
     run_event.set()
 
-    log_thread = threading.Thread(target=log_aqi,args = (10,run_event))
+    log_thread = threading.Thread(target=log_aqi,args = (60,run_event))
     log_thread.start()
     
     try:
