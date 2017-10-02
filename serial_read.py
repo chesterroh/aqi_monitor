@@ -4,6 +4,7 @@ import time
 import serial
 import sys
 import RPi.GPIO as GPIO
+import threading
 
 redPin = 11
 greenPin = 13
@@ -112,24 +113,27 @@ def verify_checksum(packet):
     else:
         return False
 
-try:
-    ser = serial.Serial(
-        port = '/dev/ttyAMA0',
-        baudrate = 9600,
-        parity = serial.PARITY_NONE,
-        stopbits = serial.STOPBITS_ONE,
-        bytesize = serial.EIGHTBITS,
-        timeout = 1,
-    )
-except serial.SerialException:
-    print "Port open failed"
+def main():
+    try:
+        ser = serial.Serial(
+            port = '/dev/ttyAMA0',
+            baudrate = 9600,
+            parity = serial.PARITY_NONE,
+            stopbits = serial.STOPBITS_ONE,
+            bytesize = serial.EIGHTBITS,
+            timeout = 1,
+        )
+    except serial.SerialException:
+        print "Port open failed"
     
-while 1:
-    x = ser.read()
-    if ord(x) == 0x42:
+    while 1:
         x = ser.read()
+        if ord(x) == 0x42:
+            x = ser.read()
         if ord(x) == 0x4d:
             x = ser.read(30)
-            if verify_checksum(x):
-                processPacket(x)
-            
+        if verify_checksum(x):
+            processPacket(x)
+
+if __name__ == "__main__":
+    main()
