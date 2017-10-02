@@ -168,11 +168,12 @@ def main():
         while 1:
             x = ser.read()
             print(type(x))
-            if ord(x) == 0x42:
+            if int.from_bytes(x) == 0x42:
                 x = ser.read()
-            if ord(x) == 0x4d:
+            if int.from_bytes(x) == 0x4d:
                 x = ser.read(30) 
             if verify_checksum(x):
+                print("entering checksum")
                 processPacket(x)
     except KeyboardInterrupt:
         print("KeyboardInterrupt caught")

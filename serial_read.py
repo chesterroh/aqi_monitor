@@ -5,6 +5,7 @@ import serial
 import sys
 import RPi.GPIO as GPIO
 import threading
+import binascii
 
 redPin = 11
 greenPin = 13
@@ -75,10 +76,10 @@ def calcAQI(u):
 
 def processPacket(packet):
 
-    pm01 = ord(packet[8])<<8|ord(packet[9])
-    pm2_5 = ord(packet[10])<<8|ord(packet[11])
-    pm10 = ord(packet[12])<<8|ord(packet[13])
-    voc = ord(packet[26])<<8|ord(packet[28])
+    pm01 = (packet[8])<<8|(packet[9])
+    pm2_5 = (packet[10])<<8|(packet[11])
+    pm10 = (packet[12])<<8|(packet[13])
+    voc = (packet[26])<<8|(packet[28])
 
     print("PM1.0 %d /  PM2.5 %d /  PM10 %d / VOC %d mg/M" % ( pm01, pm2_5, pm10, voc ))
     aqi = calcAQI(pm2_5)
@@ -99,11 +100,11 @@ def processPacket(packet):
         blueOn()
         
 def verify_checksum(packet):
-    checksum = ord(packet[28])<<8 | ord(packet[29])
+    checksum = (packet[28]) << 8 | packet[29]
     datasum = 0
     
     for i in range(28):
-        datasum += ord(packet[i])
+        datasum += packet[i]
 
     datasum += 0x42
     datasum += 0x4d
@@ -112,6 +113,9 @@ def verify_checksum(packet):
         return True
     else:
         return False
+
+def bytes_to_int(x):
+    return int.from_bytes(x,byteorder='big')
 
 def main():
     try:
@@ -128,13 +132,12 @@ def main():
     
     while 1:
         x = ser.read()
-        print(type(x))
-        if ord(x) == 0x42:
-            x = ser.read()
-        if ord(x) == 0x4d:
-            x = ser.read(30)
-        if verify_checksum(x):
-            processPacket(x)
+        if bytes_to_int(x) == 0x42:
+            x = ser.read() 
+            if bytes_to_int(x) == 0x4d:
+                x = ser.read(30)
+                if verify_checksum(x):
+                    processPacket(x)
 
 if __name__ == "__main__":
     main()
