@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import time
 import serial
@@ -80,10 +80,10 @@ def processPacket(packet):
     pm10 = ord(packet[12])<<8|ord(packet[13])
     voc = ord(packet[26])<<8|ord(packet[28])
 
-    print "PM1.0 %d /  PM2.5 %d /  PM10 %d / VOC %d mg/M" % ( pm01, pm2_5, pm10, voc )
+    print("PM1.0 %d /  PM2.5 %d /  PM10 %d / VOC %d mg/M" % ( pm01, pm2_5, pm10, voc ))
     aqi = calcAQI(pm2_5)
 
-    print "PM2.5 AQI %d\n" % (aqi)
+    print("PM2.5 AQI %d\n" % (aqi))
     
     allOff()
     
@@ -124,10 +124,11 @@ def main():
             timeout = 1,
         )
     except serial.SerialException:
-        print "Port open failed"
+        print("Port open failed")
     
     while 1:
         x = ser.read()
+        print(type(x))
         if ord(x) == 0x42:
             x = ser.read()
         if ord(x) == 0x4d:

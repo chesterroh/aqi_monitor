@@ -129,7 +129,7 @@ def verify_checksum(packet):
         return False
 
 def log_aqi(delay,run_event):
-    while run_even.is_set():
+    while run_event.is_set():
         time.sleep(delay)
         log_server_http()
 
@@ -150,7 +150,7 @@ def main():
     run_event = threading.Event()
     run_event.set()
 
-    log_thread = threading.Thread(target=log_aqi,args = (60,run_event))
+    log_thread = threading.Thread(target=log_aqi,args = (10,run_event))
     log_thread.start()
     
     try:
@@ -163,14 +163,15 @@ def main():
             timeout = 1,
         )
     except serial.SerialException:
-        print "Port open failed"
+        print("Port open failed")
     try:
         while 1:
             x = ser.read()
+            print(type(x))
             if ord(x) == 0x42:
                 x = ser.read()
             if ord(x) == 0x4d:
-                x = ser.read(30)
+                x = ser.read(30) 
             if verify_checksum(x):
                 processPacket(x)
     except KeyboardInterrupt:
