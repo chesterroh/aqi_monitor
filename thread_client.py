@@ -20,7 +20,12 @@ def log_server_http():
     host = "http://localhost:8000"
     uri = "/polls/logaqi?aqi01=%s&aqi25=%s&aqi10=%s&voc=%s" % ( aqi_request['aqi01'], aqi_request['aqi25'], aqi_request['aqi10'], aqi_request['voc'] )
     
-    f = urllib.request.urlopen(host+uri)
+    try:
+        f = urllib.request.urlopen(host+uri)
+    except urllib.error.URLError as e:
+        print(e.reason)
+        return
+        
     print(f.read().decode('utf-8'))
     f.close()
 
