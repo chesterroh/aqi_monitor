@@ -134,7 +134,7 @@ def log_aqi(delay,run_event):
         log_server_http()
 
 def log_server_http():
-    uri = "/logaqi/logaqi?aqi01=%s&aqi25=%s&aqi10=%s&voc=%s" % ( aqi_buffer['aqi01'], aqi_buffer['aqi25'],aqi_buffer['aqi10'], aqi_buffer['voc'])
+    uri = "/logaqi/aqiapi?aqi01=%s&aqi25=%s&aqi10=%s&voc=%s" % ( aqi_buffer['aqi01'], aqi_buffer['aqi25'],aqi_buffer['aqi10'], aqi_buffer['voc'])
 
     try:
         f = urllib.request.urlopen(host+uri)
